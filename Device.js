@@ -129,7 +129,7 @@ module.exports = class Device {
       // 17 = DeviceCommand.LIGHT_SWITCH
       const buffer = Buffer.from(generateReq(17, cmdArgs), "uint8");
       console.log("Write:", buffer);
-      this.write.write(buffer, true, (err) => {
+      this.write.write(buffer, false, (err) => {
         if (err) console.log("Error:", err);
         this.power = status;
         this.disconnect();
@@ -146,7 +146,7 @@ module.exports = class Device {
       // 19 = DeviceCommand.LIGHT_BRIGHTNESS
       const buffer = Buffer.from(generateReq(19, cmdArgs), "uint8");
       console.log("Write:", buffer);
-      this.write.write(buffer, true, (err) => {
+      this.write.write(buffer, false, (err) => {
         if (err) console.log("Error:", err);
         this.brightness = level;
         this.disconnect();
@@ -164,7 +164,7 @@ module.exports = class Device {
       // 21 = DeviceCommand.LIGHT_COLOR
       const buffer = Buffer.from(generateReq(21, cmdArgs), "uint8");
       console.log("Write:", buffer);
-      this.write.write(buffer, true, (err) => {
+      this.write.write(buffer, false, (err) => {
         if (err) console.log("Error:", err);
         this.disconnect();
       });
