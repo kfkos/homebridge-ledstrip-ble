@@ -106,8 +106,8 @@ module.exports = class Device {
     this.connected = true;
     const { characteristics } =
       await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
-        ["fff0"],
-        ["fff3"]
+        ["0000ff1000001000800000805f9b34fb"],
+        ["0000ff1200001000800000805f9b34fb"]
       );
     console.log(characteristics);
     this.write = characteristics[0];
@@ -126,6 +126,7 @@ module.exports = class Device {
     if (this.write) {
       var cmdArgs = new Uint8Array(1);
       cmdArgs[0] = status ? 1 : 0;
+      // 17 = DeviceCommand.LIGHT_SWITCH
       const buffer = Buffer.from(generateReq(17, cmdArgs), "uint8");
       console.log("Write:", buffer);
       this.write.write(buffer, true, (err) => {
@@ -140,8 +141,10 @@ module.exports = class Device {
     if (level > 100 || level < 0) return;
     if (!this.connected) await this.connectAndGetWriteCharacteristics();
     if (this.write) {
-      const level_hex = ("0" + level.toString(16)).slice(-2);
-      const buffer = Buffer.from(`7e0001${level_hex}00000000ef`, "hex");
+      var cmdArgs = new Uint8Array(1);
+      cmdArgs[0] = level;
+      // 19 = DeviceCommand.LIGHT_BRIGHTNESS
+      const buffer = Buffer.from(generateReq(19, cmdArgs), "uint8");
       console.log("Write:", buffer);
       this.write.write(buffer, true, (err) => {
         if (err) console.log("Error:", err);
@@ -154,10 +157,12 @@ module.exports = class Device {
   async set_rgb(r, g, b) {
     if (!this.connected) await this.connectAndGetWriteCharacteristics();
     if (this.write) {
-      const rhex = ("0" + r.toString(16)).slice(-2);
-      const ghex = ("0" + g.toString(16)).slice(-2);
-      const bhex = ("0" + b.toString(16)).slice(-2);
-      const buffer = Buffer.from(`7e000503${rhex}${ghex}${bhex}00ef`, "hex");
+      var cmdArgs = new Uint8Array(3);
+      cmdArgs[0] = r;
+      cmdArgs[1] = g;
+      cmdArgs[2] = b;
+      // 21 = DeviceCommand.LIGHT_COLOR
+      const buffer = Buffer.from(generateReq(21, cmdArgs), "uint8");
       console.log("Write:", buffer);
       this.write.write(buffer, true, (err) => {
         if (err) console.log("Error:", err);
