@@ -82,10 +82,12 @@ module.exports = class Device {
   async set_power(status) {
     if (!this.connected) await this.connectAndGetWriteCharacteristics();
     if (this.write) {
-      const buffer = Buffer.from(
-        `7e0004${status ? "01" : "00"}00000000ef`,
-        "hex"
-      );
+      const buffer;
+      if (status) {
+        buffer = Buffer.from(`a0110401b121`, "hex");
+      } else {
+        buffer = Buffer.from(`a011040070e1`, "hex");
+      }
       console.log("Write:", buffer);
       this.write.write(buffer, true, (err) => {
         if (err) console.log("Error:", err);
