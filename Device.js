@@ -112,7 +112,7 @@ module.exports = class Device {
 
     noble.on("discover", async (peripheral) => {
       if (peripheral.uuid == this.uuid) {
-        console.log("Connected with BLE device" + this.uuid + " successfully")
+        console.log("Connected with BLE device " + this.uuid + " successfully")
         this.peripheral = peripheral;
         noble.stopScanning();
       }
@@ -131,8 +131,8 @@ module.exports = class Device {
         ["0000ff1000001000800000805f9b34fb"]
       );
       console.log(characteristics);
-    this.write = characteristics[0];
-    this.read = characteristics[1];
+    this.write = characteristics[1];
+    this.read = characteristics[0];
   }
 
   async disconnect() {
