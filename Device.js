@@ -144,7 +144,7 @@ module.exports = class Device {
   }
 
   async set_power(status) {
-    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (!this.connected) await this.connectAndGetCharacteristics();
     if (this.write) {
       var cmdArgs = new Uint8Array(1);
       cmdArgs[0] = status ? 1 : 0;
@@ -160,7 +160,7 @@ module.exports = class Device {
 
   async set_brightness(level) {
     if (level > 100 || level < 0) return;
-    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (!this.connected) await this.connectAndGetCharacteristics();
     if (this.write) {
       var cmdArgs = new Uint8Array(1);
       cmdArgs[0] = level;
