@@ -67,6 +67,30 @@ function hslToRgb(h, s, l) {
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
+function rgbToHsl(r, g, b) {
+  r /= 255, g /= 255, b /= 255;
+
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var h, s, l = (max + min) / 2;
+
+  if (max == min) {
+    h = s = 0; // achromatic
+  } else {
+    var d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+
+    h /= 6;
+  }
+
+  return [ h, s, l ];
+}
+
 module.exports = class Device {
   constructor(uuid) {
     this.uuid = uuid;
@@ -79,25 +103,23 @@ module.exports = class Device {
     this.peripheral = undefined;
 
     noble.on("stateChange", (state) => {
-      console.log("State:", state);
       if (state == "poweredOn") {
         noble.startScanningAsync();
       } else {
-        // if (this.peripheral) this.peripheral.disconnect();
         this.connected = false;
       }
     });
 
     noble.on("discover", async (peripheral) => {
-      console.log(peripheral.uuid, peripheral.advertisement.localName);
       if (peripheral.uuid == this.uuid) {
+        console.log("Connected with BLE device" + this.uuid + " successfully")
         this.peripheral = peripheral;
         noble.stopScanning();
       }
     });
   }
 
-  async connectAndGetWriteCharacteristics() {
+  async connectAndGetCharacteristics() {
     if (!this.peripheral) {
       noble.startScanningAsync();
       return;
@@ -106,11 +128,11 @@ module.exports = class Device {
     this.connected = true;
     const { characteristics } =
       await this.peripheral.discoverSomeServicesAndCharacteristicsAsync(
-        ["0000ff1000001000800000805f9b34fb"],
-        ["0000ff1200001000800000805f9b34fb"]
+        ["0000ff1000001000800000805f9b34fb"]
       );
-    console.log(characteristics);
+      console.log(characteristics);
     this.write = characteristics[0];
+    this.read = characteristics[1];
   }
 
   async disconnect() {
@@ -128,7 +150,6 @@ module.exports = class Device {
       cmdArgs[0] = status ? 1 : 0;
       // 17 = DeviceCommand.LIGHT_SWITCH
       const buffer = Buffer.from(generateReq(17, cmdArgs), "uint8");
-      console.log("Write:", buffer);
       this.write.write(buffer, false, (err) => {
         if (err) console.log("Error:", err);
         this.power = status;
@@ -145,7 +166,6 @@ module.exports = class Device {
       cmdArgs[0] = level;
       // 19 = DeviceCommand.LIGHT_BRIGHTNESS
       const buffer = Buffer.from(generateReq(19, cmdArgs), "uint8");
-      console.log("Write:", buffer);
       this.write.write(buffer, false, (err) => {
         if (err) console.log("Error:", err);
         this.brightness = level;
@@ -155,7 +175,7 @@ module.exports = class Device {
   }
 
   async set_rgb(r, g, b) {
-    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (!this.connected) await this.connectAndGetCharacteristics();
     if (this.write) {
       var cmdArgs = new Uint8Array(3);
       cmdArgs[0] = r;
@@ -163,7 +183,6 @@ module.exports = class Device {
       cmdArgs[2] = b;
       // 21 = DeviceCommand.LIGHT_COLOR
       const buffer = Buffer.from(generateReq(21, cmdArgs), "uint8");
-      console.log("Write:", buffer);
       this.write.write(buffer, false, (err) => {
         if (err) console.log("Error:", err);
         this.disconnect();
@@ -172,7 +191,7 @@ module.exports = class Device {
   }
 
   async set_hue(hue) {
-    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (!this.connected) await this.connectAndGetCharacteristics();
     if (this.write) {
       this.hue = hue;
       const rgb = hslToRgb(hue / 360, this.saturation / 100, this.l);
@@ -182,7 +201,7 @@ module.exports = class Device {
   }
 
   async set_saturation(saturation) {
-    if (!this.connected) await this.connectAndGetWriteCharacteristics();
+    if (!this.connected) await this.connectAndGetCharacteristics();
     if (this.write) {
       this.saturation = saturation;
       const rgb = hslToRgb(this.hue / 360, saturation / 100, this.l);

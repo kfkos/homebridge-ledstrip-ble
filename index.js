@@ -6,7 +6,7 @@ let Service, Characteristic;
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory('@lyliya/homebridge-ledstrip-ble', 'LedStrip', LedStrip);
+  homebridge.registerAccessory('@kfkos/homebridge-ledstrip-ble', 'LedStrip', LedStrip);
 };
 
 function LedStrip(log, config, api) {
@@ -33,12 +33,10 @@ function LedStrip(log, config, api) {
     .on('get', this.getSaturation.bind(this))
     .on('set', this.setSaturation.bind(this));
 
-  this.log('all event handler was setup.');
+  this.log('all event handlers setup successfully.');
 
   if (!this.config.uuid) return;
   this.uuid = this.config.uuid;
-
-  this.log('Device UUID:', this.uuid);
 
   this.device = new Device(this.uuid);
 }
@@ -46,26 +44,21 @@ function LedStrip(log, config, api) {
 LedStrip.prototype = {
   getServices: function () {
     if (!this.bulb) return [];
-    this.log('Homekit asked to report service');
     const infoService = new Service.AccessoryInformation();
     infoService.setCharacteristic(Characteristic.Manufacturer, 'LedStrip');
     return [infoService, this.bulb];
   },
   getPower: function (callback) {
-    this.log('Homekit Asked Power State', this.device.connected);
     callback(null, this.device.power);
   },
   setPower: function (on, callback) {
-    this.log('Homekit Gave New Power State' + ' ' + on);
     this.device.set_power(on);
     callback(null);
   },
   getBrightness: function (callback) {
-    this.log('Homekit Asked Brightness');
     callback(null, this.device.brightness);
   },
   setBrightness: function (brightness, callback) {
-    this.log('Homekit Set Brightness', brightness);
     this.device.set_brightness(brightness);
     callback(null);
   },
@@ -73,7 +66,6 @@ LedStrip.prototype = {
     callback(null, this.device.hue);
   },
   setHue: function (hue, callback) {
-    this.log('Homekit Set Hue', hue);
     this.device.set_hue(hue);
     callback(null);
   },
@@ -81,7 +73,6 @@ LedStrip.prototype = {
     callback(null, this.device.saturation);
   },
   setSaturation: function (saturation, callback) {
-    this.log('Homekit Set Saturation', saturation);
     this.device.set_saturation(saturation);
     callback(null);
   }
