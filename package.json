@@ -1,7 +1,7 @@
 {
-    "name": "@lyliya/homebridge-ledstrip-ble",
-    "version": "1.4.5",
-    "displayName": "Homebridge Ledstrip BLE",
+    "name": "@kfkos/homebridge-ledstrip-ble",
+    "version": "1.4.6",
+    "displayName": "Homebridge LED Strip (BLE)",
     "description": "",
     "main": "index.js",
     "dependencies": {
@@ -20,12 +20,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Lyliya/homebridge-ledstrip-ble.git"
+        "url": "git+https://github.com/kfkos/homebridge-ledstrip-ble.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/Lyliya/homebridge-ledstrip-ble/issues"
+        "url": "https://github.com/kfkos/homebridge-ledstrip-ble/issues"
     },
-    "homepage": "https://github.com/Lyliya/homebridge-ledstrip-ble#readme"
+    "homepage": "https://github.com/kfkos/homebridge-ledstrip-ble#readme"
 }
